@@ -1,7 +1,7 @@
 class ApiConfig {
   // 🌍 URL base de la API - CAMBIAR AQUÍ PARA TODAS LAS APIS
   static const String baseUrl =
-      'http://148.113.190.163'; //http://148.113.190.163:88
+      'http://10.0.2.2:5028'; //http://148.113.190.163:88
 
   // 🔗 Ruta base de la API
   static const String apiPath = '/api';
@@ -36,6 +36,8 @@ class ApiConfig {
       '$baseUrl$apiPath/Revisiones/ObtenerTiposVerificacion';
   static String get agregarRevisionUrl =>
       '$baseUrl$apiPath/Revisiones/AgregarRevision';
+  static String get obtenerRevisionesPorInspectorUrl =>
+      '$baseUrl$apiPath/Revisiones/ObtenerRevisionesPorInspectorPaginado';
 
   // Endpoints de contribuyentes
   static String get obtenerContribuyentesPaginadoUrl =>
