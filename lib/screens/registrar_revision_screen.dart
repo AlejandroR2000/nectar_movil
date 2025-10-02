@@ -63,7 +63,7 @@ class _RegistrarRevisionScreenState extends State<RegistrarRevisionScreen> {
   Map<String, dynamic>? _predioSeleccionado;
   Map<String, dynamic>? _licenciaSeleccionada;
   String _metodoCaptura = 'manual'; // 'manual' o 'qr'
-  String _tipoBusquedaPredio = 'folio'; // 'folio' o 'calle'
+  String _tipoBusquedaPredio = 'folio'; // 'folio', 'calle' o 'tablaje'
 
   // Fotos y ubicación
   File? _fotoFachada; // imgEvidencia1
@@ -2697,21 +2697,22 @@ class _RegistrarRevisionScreenState extends State<RegistrarRevisionScreen> {
                       });
                     },
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                      child: Column(
                         children: [
                           Icon(
                             Icons.numbers,
+                            size: 20,
                             color: _tipoBusquedaPredio == 'folio'
                                 ? Colors.blue
                                 : Colors.grey,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(height: 4),
                           Text(
-                            'Por Folio',
+                            'Folio',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
+                              fontSize: 12,
                               color: _tipoBusquedaPredio == 'folio'
                                   ? Colors.blue
                                   : Colors.grey,
@@ -2723,7 +2724,7 @@ class _RegistrarRevisionScreenState extends State<RegistrarRevisionScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
               Expanded(
                 child: Card(
                   elevation: _tipoBusquedaPredio == 'calle' ? 4 : 1,
@@ -2742,22 +2743,69 @@ class _RegistrarRevisionScreenState extends State<RegistrarRevisionScreen> {
                       });
                     },
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                      child: Column(
                         children: [
                           Icon(
                             Icons.location_on,
+                            size: 20,
                             color: _tipoBusquedaPredio == 'calle'
                                 ? Colors.blue
                                 : Colors.grey,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(height: 4),
                           Text(
-                            'Por Calle',
+                            'Calle',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
+                              fontSize: 12,
                               color: _tipoBusquedaPredio == 'calle'
+                                  ? Colors.blue
+                                  : Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Card(
+                  elevation: _tipoBusquedaPredio == 'tablaje' ? 4 : 1,
+                  color: _tipoBusquedaPredio == 'tablaje'
+                      ? Colors.blue.shade50
+                      : null,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        _tipoBusquedaPredio = 'tablaje';
+                        _predios = [];
+                        _predioSeleccionado = null;
+                        _predioController.clear();
+                        _calleController.clear();
+                        _numeroController.clear();
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.landscape,
+                            size: 20,
+                            color: _tipoBusquedaPredio == 'tablaje'
+                                ? Colors.blue
+                                : Colors.grey,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Tablaje',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: _tipoBusquedaPredio == 'tablaje'
                                   ? Colors.blue
                                   : Colors.grey,
                             ),
@@ -2801,6 +2849,41 @@ class _RegistrarRevisionScreenState extends State<RegistrarRevisionScreen> {
                 helperText: !_isOnline ? 'Necesita conexión para buscar' : null,
                 helperStyle: TextStyle(color: Colors.orange.shade600),
               ),
+              onChanged: _isOnline ? _buscarPredios : null,
+              validator: (value) {
+                if (_isOnline && _predioSeleccionado == null && !_esTipoAmbulante()) {
+                  return 'Debe seleccionar un predio';
+                }
+                return null;
+              },
+            ),
+          ] else if (_tipoBusquedaPredio == 'tablaje') ...[
+            // Búsqueda por tablaje
+            TextFormField(
+              controller: _predioController,
+              enabled: _isOnline, // Deshabilitar si está offline
+              decoration: InputDecoration(
+                labelText: _isOnline ? 'Buscar predio por tablaje' : 'Buscar predio por tablaje (Sin conexión)',
+                hintText: 'Ingrese el número de tablaje',
+                border: const OutlineInputBorder(),
+                prefixIcon: Icon(
+                  _isOnline ? Icons.landscape : Icons.wifi_off,
+                  color: _isOnline ? null : Colors.grey,
+                ),
+                suffixIcon: _isPredioLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : null,
+                helperText: !_isOnline ? 'Necesita conexión para buscar' : null,
+                helperStyle: TextStyle(color: Colors.orange.shade600),
+              ),
+              keyboardType: TextInputType.number,
               onChanged: _isOnline ? _buscarPredios : null,
               validator: (value) {
                 if (_isOnline && _predioSeleccionado == null && !_esTipoAmbulante()) {
@@ -2949,6 +3032,9 @@ class _RegistrarRevisionScreenState extends State<RegistrarRevisionScreen> {
                         if (_tipoBusquedaPredio == 'folio') {
                           _predioController.text =
                               'Folio: ${predio['folio']} - ${predio['direccion']?['calle'] ?? ''} ${predio['direccion']?['numeroPredio'] ?? ''}';
+                        } else if (_tipoBusquedaPredio == 'tablaje') {
+                          _predioController.text =
+                              'Tablaje: ${predio['tablaje'] ?? 'N/A'} - Lote: ${predio['lote'] ?? 'N/A'} - ${predio['direccion']?['calle'] ?? ''} ${predio['direccion']?['numeroPredio'] ?? ''}';
                         } else {
                           _calleController.text = predio['direccion']?['calle'] ?? '';
                           _numeroController.text = predio['direccion']?['numeroPredio'] ?? '';
@@ -2982,7 +3068,9 @@ class _RegistrarRevisionScreenState extends State<RegistrarRevisionScreen> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'Calle: ${predio['direccion']?['calle'] ?? ''} ${predio['direccion']?['numeroPredio'] ?? ''} • Colonia: ${predio['direccion']?['Colonia'] ?? ''}',
+                                  _tipoBusquedaPredio == 'tablaje'
+                                      ? 'Tablaje: ${predio['tablaje'] ?? 'N/A'} • Lote: ${predio['lote'] ?? 'N/A'} • Calle: ${predio['direccion']?['calle'] ?? ''} ${predio['direccion']?['numeroPredio'] ?? ''} • Colonia: ${predio['direccion']?['Colonia'] ?? ''}'
+                                      : 'Calle: ${predio['direccion']?['calle'] ?? ''} ${predio['direccion']?['numeroPredio'] ?? ''} • Colonia: ${predio['direccion']?['Colonia'] ?? ''}',
                                   style: TextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 12,
@@ -3008,7 +3096,9 @@ class _RegistrarRevisionScreenState extends State<RegistrarRevisionScreen> {
               ((_tipoBusquedaPredio == 'folio' &&
                       _predioController.text.length >= 2) ||
                   (_tipoBusquedaPredio == 'calle' &&
-                      _calleController.text.isNotEmpty)) &&
+                      _calleController.text.isNotEmpty) ||
+                  (_tipoBusquedaPredio == 'tablaje' &&
+                      _predioController.text.length >= 2)) &&
               !_isPredioLoading &&
               _predioSeleccionado == null) ...[
             const SizedBox(height: 8),
@@ -3066,9 +3156,21 @@ class _RegistrarRevisionScreenState extends State<RegistrarRevisionScreen> {
                     'Uso/Destino: ${_predioSeleccionado!['Uso y/o Destino'] ?? ''}',
                   ),
                   Text('Tipo: ${_predioSeleccionado!['Tipo de Predio'] ?? ''}'),
-                  Text(
-                    'Dirección: ${_predioSeleccionado!['direccion']?['calle'] ?? ''} ${_predioSeleccionado!['direccion']?['numeroPredio'] ?? ''}',
-                  ),
+                  if (_tipoBusquedaPredio == 'tablaje') ...[
+                    Text(
+                      'Tablaje: ${_predioSeleccionado!['tablaje'] ?? 'N/A'}',
+                    ),
+                    Text(
+                      'Lote: ${_predioSeleccionado!['lote'] ?? 'N/A'}',
+                    ),
+                    Text(
+                      'Dirección: ${_predioSeleccionado!['direccion']?['calle'] ?? ''} ${_predioSeleccionado!['direccion']?['numeroPredio'] ?? ''}',
+                    ),
+                  ] else ...[
+                    Text(
+                      'Dirección: ${_predioSeleccionado!['direccion']?['calle'] ?? ''} ${_predioSeleccionado!['direccion']?['numeroPredio'] ?? ''}',
+                    ),
+                  ],
                   Text(
                     'Colonia: ${_predioSeleccionado!['direccion']?['Colonia'] ?? ''}',
                   ),

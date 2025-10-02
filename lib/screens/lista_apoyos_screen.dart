@@ -256,6 +256,16 @@ class _ListaApoyosScreenState extends State<ListaApoyosScreen> with TokenExpirat
     }
   }
 
+  String _formatDateOnly(String? dateString) {
+    if (dateString == null) return 'N/A';
+    try {
+      final date = DateTime.parse(dateString);
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+    } catch (e) {
+      return dateString;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -275,7 +285,7 @@ class _ListaApoyosScreenState extends State<ListaApoyosScreen> with TokenExpirat
                 Row(
                   children: [
                     Expanded(
-                      flex: 3,
+                      flex: 4,
                       child: TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
@@ -298,13 +308,13 @@ class _ListaApoyosScreenState extends State<ListaApoyosScreen> with TokenExpirat
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      flex: 2,
+                      flex: 3,
                       child: DropdownButtonFormField<String>(
                         value: searchField,
                         decoration: const InputDecoration(
                           labelText: 'Campo',
                           border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         ),
                         items: const [
                           DropdownMenuItem(value: 'Beneficiario', child: Text('Beneficiario')),
@@ -383,8 +393,9 @@ class _ListaApoyosScreenState extends State<ListaApoyosScreen> with TokenExpirat
                                   subtitle: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('CURP: ${apoyo['curp'] ?? 'N/A'}'),
-                                      Text('Tipo: ${apoyo['tipoApoyo'] ?? 'N/A'}', 
+                                      Text('CURP: ${apoyo['curp'] ?? 'N/A'}',
+                                        style: const TextStyle(fontSize: 12)),
+                                      Text('Fecha: ${_formatDateOnly(apoyo['fechaPago'])}',
                                         maxLines: 1, overflow: TextOverflow.ellipsis),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

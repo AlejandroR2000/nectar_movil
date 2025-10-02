@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'registrar_revision_screen.dart';
 import 'inspecciones_pendientes_screen.dart';
+import 'mis_inspecciones_screen.dart';
 import '../services/auth_service.dart';
 import '../services/inspeccion_offline_service.dart';
 import '../services/connectivity_service.dart';
@@ -339,6 +340,74 @@ class _RevisionesMenuScreenState extends State<RevisionesMenuScreen> {
                   ),
                   
                   const SizedBox(height: 16),
+                  
+                  // Card para Mis Inspecciones - Solo mostrar si tiene permisos para mostrar revisiones
+                  if (revisionesPermissions['mostrarRevisiones'] ?? false)
+                    Card(
+                      elevation: 6,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8.0),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MisInspeccionesScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20.0),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12.0),
+                                decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                                ),
+                                child: const FaIcon(
+                                  FontAwesomeIcons.listCheck,
+                                  size: 32,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Mis Inspecciones',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      'Ver historial de inspecciones realizadas',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(
+                                Icons.arrow_forward_ios,
+                                color: Colors.grey,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  
+                  // Mostrar SizedBox solo si tiene permisos para mostrar revisiones
+                  if (revisionesPermissions['mostrarRevisiones'] ?? false)
+                    const SizedBox(height: 16),
                   
                   // Card para futuras opciones (disponible siempre)
                   Card(
